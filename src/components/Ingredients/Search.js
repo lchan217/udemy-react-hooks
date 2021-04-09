@@ -10,8 +10,9 @@ const Search = React.memo(props => {
 
   useEffect(() => {
     // delay request until user is done typing
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       // closures - enteredFilter is what the user previously input (old val)
+      // so useRef to get new value
       if (enteredFilter === inputRef.current.value){
         const query =
         enteredFilter.length === 0
@@ -33,6 +34,9 @@ const Search = React.memo(props => {
           })
         }
     }, 500)
+    return () => {
+      clearTimeout(timer) // reset timer for the latest keystroke
+    }
   }, [enteredFilter, onLoadIngredients, inputRef])
 
   return (
