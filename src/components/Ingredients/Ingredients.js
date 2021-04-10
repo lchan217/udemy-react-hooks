@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useCallback } from 'react';
+import React, { useReducer, useEffect, useCallback, useMemo } from 'react';
 // useReducer replaces useState
 
 import IngredientForm from './IngredientForm';
@@ -52,7 +52,7 @@ const Ingredients = () => {
     dispatch({type: 'SET', ingredients: filteredIngredients})
   }, [])
 
-  const addIngredientHandler = ingredient => {
+  const addIngredientHandler = useCallback(ingredient => {
     // setIsLoading(true)
     dispatchHttp({ type: 'SEND_REQUEST'})
     
@@ -72,9 +72,9 @@ const Ingredients = () => {
       // ])
       dispatch({ type: 'ADD', ingredient: ingredient})
     })
-  }
+  }, [])
 
-  const removeIngredientHandler = id => {
+  const removeIngredientHandler = useCallback(id => {
     // setIsLoading(true)
     dispatchHttp({ type: 'SEND_REQUEST'})
 
@@ -90,12 +90,21 @@ const Ingredients = () => {
       // setIsLoading(false)
       dispatchHttp({ type: 'ERROR', errorMessage: err.message })
     })
-  }
+  }, [])
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     // setError(null)
     dispatchHttp({ type: 'CLEAR_ERROR' })
-  }
+  }, [])
+
+  const ingredientList = useMemo(() => {
+    return (
+      <IngredientList 
+        ingredients={userIngredients} 
+        onRemoveItem={removeIngredientHandler} 
+      />
+    )
+  }, [userIngredients, removeIngredientHandler])
 
   return (
     <div className="App">
@@ -107,7 +116,7 @@ const Ingredients = () => {
 
       <section>
         <Search onLoadIngredients={filteredIngredientsHander} />
-        <IngredientList ingredients={userIngredients} onRemoveItem={removeIngredientHandler} />
+        {ingredientList}
       </section>
     </div>
   );
