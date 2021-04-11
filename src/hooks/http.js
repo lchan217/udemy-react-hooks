@@ -7,13 +7,15 @@ const httpReducer = (currentHttpState, action) => {
         loading: true, 
         error: null, 
         data: null,
-        extra: action.extra
+        extra: null,
+        identifier: action.identifier
        }
     case 'RESPONSE':
       return { 
         ...currentHttpState, 
         loading: false, 
-        data: action.responseData
+        data: action.responseData,
+        extra: action.extra
       }
     case 'ERROR':
       return { 
@@ -35,11 +37,12 @@ const useHttp = () => {
     loading: false, 
     error: null,
     data: null,
-    extra: null
+    extra: null,
+    identifier: null
   })
 
-  const sendRequest = useCallback((url, method, body, reqExtra ) => {
-    dispatchHttp({ type: 'SEND', extra: reqExtra })
+  const sendRequest = useCallback((url, method, body, reqExtra, reqIdentifier) => {
+    dispatchHttp({ type: 'SEND', identifier: reqIdentifier })
     fetch(url, {
       method: method,
       body: body,
@@ -49,7 +52,7 @@ const useHttp = () => {
     }).then(response => {
       return response.json()
     }).then(responseData => {
-      dispatchHttp({ type: 'RESPONSE', data: responseData })     
+      dispatchHttp({ type: 'RESPONSE', responseData: responseData, extra: reqExtra })     
     }).catch(err => {
       dispatchHttp({ type: 'ERROR', errorMessage: err.message })
     })
@@ -59,7 +62,8 @@ const useHttp = () => {
     data: httpState.data,
     error: httpState.error,
     sendRequest: sendRequest,
-    reqExtra: httpState.extra
+    reqExtra: httpState.extra,
+    reqIdentifier: httpState.identifier
   }
 }
 

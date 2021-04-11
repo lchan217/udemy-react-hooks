@@ -22,35 +22,50 @@ const ingredientReducer = (currentIngredients, action) => {
 
 const Ingredients = () => {
   const [userIngredients, dispatch] = useReducer(ingredientReducer, [])
-  const { isLoading, error, data, sendRequest, reqExtra } = useHttp()
+  const { isLoading, error, data, sendRequest, reqExtra, reqIdentifier } = useHttp()
 
   useEffect(() => {
-    dispatch({type: 'DELETE', id: reqExtra })
-  }, [data, reqExtra])
+    if(!isLoading && reqIdentifier === 'REMOVE_INGREDIENT'){
+      dispatch({type: 'DELETE', id: reqExtra })
+    } else if(!isLoading && !error && reqIdentifier === 'ADD_INGREDIENT') {
+      dispatch({ 
+        type: 'ADD', 
+        ingredient: { id: data.name, ...reqExtra }
+    })
+    }
+    
+  }, [data, reqExtra, reqIdentifier, isLoading, error])
   
   const filteredIngredientsHander = useCallback(filteredIngredients => {
     dispatch({type: 'SET', ingredients: filteredIngredients})
   }, [])
 
   const addIngredientHandler = useCallback(ingredient => {
-
-    fetch('https://udemy-react-hooks-c62a0-default-rtdb.firebaseio.com/ingredients.json', {
-      method: 'POST',
-      body: JSON.stringify(ingredient),
-      headers: { 'Content-Type': 'application/json' }
-    }).then(response => {
-      return response.json()
-    }).then(responseData => {
-      dispatch({ type: 'ADD', ingredient: ingredient})
-    })
-  }, [])
+    sendRequest(
+      'https://udemy-react-hooks-c62a0-default-rtdb.firebaseio.com/ingredients.json',
+      'POST',
+      JSON.stringify(ingredient),
+      ingredient,
+      'ADD_INGREDIENT'
+    )
+    // fetch('https://udemy-react-hooks-c62a0-default-rtdb.firebaseio.com/ingredients.json', {
+    //   method: 'POST',
+    //   body: JSON.stringify(ingredient),
+    //   headers: { 'Content-Type': 'application/json' }
+    // }).then(response => {
+    //   return response.json()
+    // }).then(responseData => {
+    //   dispatch({ type: 'ADD', ingredient: ingredient})
+    // })
+  }, [sendRequest])
 
   const removeIngredientHandler = useCallback(id => {
     sendRequest(
       `https://udemy-react-hooks-c62a0-default-rtdb.firebaseio.com/ingredients/${id}.json`, 
       'DELETE',
       null,
-      id
+      id,
+      'REMOVE_INGREDIENT'
     )
   }, [sendRequest])
 
