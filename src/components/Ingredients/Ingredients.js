@@ -22,7 +22,15 @@ const ingredientReducer = (currentIngredients, action) => {
 
 const Ingredients = () => {
   const [userIngredients, dispatch] = useReducer(ingredientReducer, [])
-  const { isLoading, error, data, sendRequest, reqExtra, reqIdentifier } = useHttp()
+  const { 
+      isLoading, 
+      error, 
+      data, 
+      sendRequest, 
+      reqExtra, 
+      reqIdentifier,
+      clear
+     } = useHttp()
 
   useEffect(() => {
     if(!isLoading && reqIdentifier === 'REMOVE_INGREDIENT'){
@@ -48,15 +56,6 @@ const Ingredients = () => {
       ingredient,
       'ADD_INGREDIENT'
     )
-    // fetch('https://udemy-react-hooks-c62a0-default-rtdb.firebaseio.com/ingredients.json', {
-    //   method: 'POST',
-    //   body: JSON.stringify(ingredient),
-    //   headers: { 'Content-Type': 'application/json' }
-    // }).then(response => {
-    //   return response.json()
-    // }).then(responseData => {
-    //   dispatch({ type: 'ADD', ingredient: ingredient})
-    // })
   }, [sendRequest])
 
   const removeIngredientHandler = useCallback(id => {
@@ -69,9 +68,6 @@ const Ingredients = () => {
     )
   }, [sendRequest])
 
-  const clearError = useCallback(() => {
-  }, [])
-
   const ingredientList = useMemo(() => {
     return (
       <IngredientList 
@@ -83,7 +79,7 @@ const Ingredients = () => {
 
   return (
     <div className="App">
-      {error && <ErrorModal onClose={clearError}>{error}</ErrorModal>}
+      {error && <ErrorModal onClose={clear}>{error}</ErrorModal>}
 
       <IngredientForm 
         onAddIngredient={addIngredientHandler}
